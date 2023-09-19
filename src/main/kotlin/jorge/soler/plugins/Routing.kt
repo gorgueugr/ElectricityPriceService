@@ -13,6 +13,7 @@ fun Application.configureRouting() {
         get("/status") {
             call.respondText("Alive")
         }
+
         // Static plugin. Try to access `/static/index.html`
         static("/static") {
             resources("static")
