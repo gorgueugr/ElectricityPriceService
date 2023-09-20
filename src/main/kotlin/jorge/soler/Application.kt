@@ -5,6 +5,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import jorge.soler.plugins.*
 import jorge.soler.prices.infra.pricesRoutes
+import configureServices
 
 fun main() {
 
@@ -14,10 +15,12 @@ fun main() {
 }
 
 fun Application.module() {
+    val historicPriceService = configureServices()
     configureHTTP()
     configureSerialization()
 //    configureDatabases()
     configureRouting()
+    pricesRoutes(historicPriceService)
     // pricesRoutes()
 
 }
