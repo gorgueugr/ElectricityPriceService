@@ -2,8 +2,6 @@ package jorge.soler.prices.infra
 
 import jorge.soler.prices.domain.Coin
 import jorge.soler.prices.domain.HistoricPrice
-import java.time.Instant
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

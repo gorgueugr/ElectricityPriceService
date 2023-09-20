@@ -9,8 +9,14 @@ class HistoricPriceService(private val historicPriceRepository: HistoricPriceRep
 
     fun list(year: Int, month: Int, day: Int): List<HistoricPrice> {
         val prices = historicPriceRepository.get(year,month,day)
+
+        if (prices.isEmpty()){
+            val newPrices = historicPriceSource.get(year,month,day)
+            create(newPrices)
+            return newPrices
+        }
+
         return prices
-//        TODO("If there is no prices get them from the api")
     }
 
     fun create(historicPrices: List<HistoricPrice>): List<HistoricPrice> {

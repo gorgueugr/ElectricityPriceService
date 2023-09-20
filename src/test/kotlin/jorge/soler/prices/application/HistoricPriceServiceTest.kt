@@ -3,9 +3,9 @@ package jorge.soler.prices.application
 import jorge.soler.prices.HistoricPriceSourceMock
 import jorge.soler.prices.domain.HistoricPrice
 import jorge.soler.prices.infra.ListHistoricPriceRepository
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-import org.junit.jupiter.api.Assertions.*
 
 class HistoricPriceServiceTest {
 
@@ -17,7 +17,7 @@ class HistoricPriceServiceTest {
     fun list() {
 
         val prices = historicPriceService.list(2023,9,19)
-        assertEquals(prices.size,0)
+        assertEquals(prices.size,24)
 
     }
 
@@ -26,8 +26,7 @@ class HistoricPriceServiceTest {
         val newPrice = HistoricPrice(2023, 9, 20, 0, 100)
         val prices = historicPriceService.create(listOf(newPrice))
         assertEquals(prices.size,1)
-        val listed = historicPriceService.list(2023,9,20)
-        assertEquals(prices.size,listed.size)
+        assertEquals(prices[0], newPrice)
 
 
     }
