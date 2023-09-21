@@ -18,7 +18,7 @@ class RandomHistoricPriceSource: HistoricPriceSource {
                 month = month,
                 day = day,
                 hour = i,
-                price = Random.nextInt(10000, 35000)
+                price = Random.nextInt(10, 35)
             ))
         }
         return prices
