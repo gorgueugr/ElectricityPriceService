@@ -100,7 +100,7 @@ const Page: React.FC = () => {
       yAxis: {
         type: 'value',
         axisLabel: {
-          valueFormatter: (value) => (value / 100).toFixed(2) + ' €/KWh',
+          valueFormatter: (value: any) => (value / 100).toFixed(2) + ' €/KWh',
         },
         axisPointer: {
           snap: false
