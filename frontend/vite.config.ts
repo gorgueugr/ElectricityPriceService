@@ -8,5 +8,8 @@ export default defineConfig({
       '/prices': 'http://localhost:8080',
     },
   },
+  build: {
+    outDir: '../src/main/resources/static',
+  },
   plugins: [react()],
 })

@@ -8,15 +8,15 @@ import java.io.File
 
 fun Application.configureRouting() {
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
+        // get("/") {
+        //     call.respondText("Hello World!")
+        // }
         get("/status") {
             call.respondText("Alive")
         }
 
         // Static plugin. Try to access `/static/index.html`
-        staticResources("/static", "static", index = "index.html")
+        staticResources("/", "static", index = "index.html")
 
     }
 }
