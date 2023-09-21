@@ -10,10 +10,11 @@ class MockHistoricPriceSource: HistoricPriceSource {
 
         val prices = mutableListOf<HistoricPrice>()
         for (i in 0..23) {
-            prices.add(element = HistoricPrice(
-                year = 2023,
-                month = 9,
-                day = 20,
+            prices.add(
+                HistoricPrice(
+                year = year,
+                month = month,
+                day = day,
                 hour = i,
                 price = i * 100
             ))

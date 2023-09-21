@@ -16,6 +16,7 @@ data class PrecioDeLaLuzItem(val date: String, val hour: String, val `is-cheap`:
 
 class PrecioDeLaLuzHistoricPriceSource: HistoricPriceSource {
     override fun get(year: Int, month: Int, day: Int): List<HistoricPrice> {
+        // This is intended to get the data from the API: https://api.preciodelaluz.org/v1/prices/all?zone=PCB
 
 //        val client = HttpClient(CIO)
 //        val response: HttpResponse = client.get("https://api.preciodelaluz.org/v1/prices/all?zone=PCB").also {
