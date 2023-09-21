@@ -1,5 +1,6 @@
 
 import './App.css'
+import Chart from './Chart'
 
 function App() {
 
@@ -7,9 +8,7 @@ function App() {
     <>
       <div>
         <h1>Precio de la luz por horas</h1>
-        <div>
-          <p>Test</p>
-        </div>
+          <Chart></Chart>
       </div>
     </>
   )
