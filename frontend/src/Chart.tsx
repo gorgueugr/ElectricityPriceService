@@ -20,7 +20,7 @@ const DEFAULT_OPTION = {
     yAxis: {
         type: 'value',
         axisLabel: {
-            formatter: '{value} E/KWh'
+            formatter: '{value} €/KWh'
         },
         axisPointer: {
             snap: true
@@ -81,7 +81,7 @@ const Page: React.FC = () => {
       if (data.length === 0) {
         return;
       }
-      const sorted = data.sort((a, b) => a?.price - b?.price);
+      const sorted = [...data].sort((a, b) => a?.price - b?.price);
       // const sum = data.reduce((a, b) => a + b.price, 0);
       const q1Pos = Math.floor((sorted.length - 1) * 0.25) ;
       const q3Pos = Math.floor((sorted.length - 1) * 0.75) ;
@@ -104,7 +104,7 @@ const Page: React.FC = () => {
             yAxis: {
                 type: 'value',
                 axisLabel: {
-                    formatter: '{value} E/KWh'
+                    formatter: '{value} €/KWh'
                 },
                 axisPointer: {
                     snap: true
@@ -131,7 +131,7 @@ const Page: React.FC = () => {
               },
             series: [
                 {
-                    name: 'Electricity',
+                    name: 'Precio €/KWh',
                     type: 'line',
                     smooth: true,
                     data: data.map((item) => item.price),
@@ -221,15 +221,15 @@ const Page: React.FC = () => {
       <div style={{ width: '100%', display: 'flex', gap: '1em', justifyContent: 'center'}}>
         <div>
           <h4>Precio mínimo</h4>
-          <p>{min} E/KWh</p>
+          <p>{min.toFixed(2)} €/KWh</p>
         </div>
         <div>
           <h4>Precio medio</h4>
-          <p>{avg} E/KWh</p>
+          <p>{avg.toFixed(2)} €/KWh</p>
         </div>
         <div>
           <h4>Precio máximo</h4>
-          <p>{max} E/KWh</p>
+          <p>{max.toFixed(2)} €/KWh</p>
         </div>
       </div>
     </>;
