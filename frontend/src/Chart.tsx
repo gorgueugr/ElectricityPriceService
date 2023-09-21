@@ -41,11 +41,10 @@ const DEFAULT_OPTION = {
 
 const Page: React.FC = () => {
     const [data, setData] = useState<HistoricPrice[]>([]);
-    const [max, setMax] = useState<number>(0);
-    const [min, setMin] = useState<number>(0);
-    const [avg, setAvg] = useState<number>(0);
     const [option, setOption] = useState(DEFAULT_OPTION);
-
+    const [max, setMax] = useState(0);
+    const [min, setMin] = useState(0);
+    const [avg, setAvg] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -57,29 +56,15 @@ const Page: React.FC = () => {
             });
 
             result.json().then((data) => {
-                let sum = 0;
-                let max = 0;
-                let min = Number.POSITIVE_INFINITY;
                 const prices: HistoricPrice[] = [];
                 for (let i = 0; i < data.length; i++) {
-                    // Find Max Price
-                    if (data[i].price > max) {
-                        max = data[i].price;
-                    }
-                    // Find Min Price
-                    if (data[i].price < min) {
-                        min = data[i].price;
-                    }
-                    // Find Avg Price
-                    sum += data[i].price;
-
                     const price = new HistoricPrice(data[i].year, data[i].month, data[i].day, data[i].hour, data[i].price /100, data[i].coin);
                     prices.push(price);
                 }
                 setData(prices);
-                setAvg((sum / data.length)/100);
-                setMax(max/100);
-                setMin(min/100);
+                setMax(Math.max(...prices.map((item) => item.price)));
+                setMin(Math.min(...prices.map((item) => item.price)));
+                setAvg(prices.reduce((a, b) => a + b.price, 0) / prices.length);
             });
 
             // Calculate Avg Price
@@ -90,12 +75,19 @@ const Page: React.FC = () => {
 
 
     useEffect(() => {
-        const xAxisData: string[] = [];
-        const yAxisData: number[] = [];
-        for (let i = 0; i < data.length; i++) {
-            xAxisData.push(data[i].hour + ":00");
-            yAxisData.push();
-        }
+
+      // const min = Math.min(...data.map((item) => item.price));
+      // const max = Math.max(...data.map((item) => item.price));
+      if (data.length === 0) {
+        return;
+      }
+      const sorted = data.sort((a, b) => a?.price - b?.price);
+      // const sum = data.reduce((a, b) => a + b.price, 0);
+      const q1Pos = Math.floor((sorted.length - 1) * 0.25) ;
+      const q3Pos = Math.floor((sorted.length - 1) * 0.75) ;
+      const q1 = sorted[q1Pos].price;
+      const q3 = sorted[q3Pos].price;
+
         const newOption = {
             tooltip: {
                 trigger: 'axis',
@@ -123,12 +115,16 @@ const Page: React.FC = () => {
                 dimension: 1,
                 pieces: [
                   {
-                    lte: avg,
+                    lte: q1 + 1,
                     color: 'green'
                   },
                   {
-                    gt: avg,
-                    lte: max,
+                    lte: q3,
+                    gt: q1,
+                    color: 'yellow'
+                  },
+                  {
+                    gt: q3,
                     color: 'red'
                   }
                 ]
@@ -147,10 +143,10 @@ const Page: React.FC = () => {
                 
                     markArea: {
                         itemStyle: {
-                          color: 'rgba(0, 173, 177, 0.4)'
+                          color: 'rgb(177, 220, 181)'
                         },
                         data: [
-                          ...data.filter((item) => item.price <= avg).map((item) => {
+                          ...data.filter((item) => item.price <= q1).map((item) => {
                             return [
                               {
                                 xAxis: item.hour + ":00"
@@ -164,16 +160,39 @@ const Page: React.FC = () => {
                       },
                 },
                 {
-                    name: 'Cheap',
+                  name: 'Mid',
+                  type: 'line',
+                  data: [],
+              
+                  markArea: {
+                      itemStyle: {
+                        color: 'rgb(254, 198, 57)'
+                      },
+                      data: [
+                        ...data.filter((item) => item.price < q3 && item.price > q1).map((item) => {
+                          return [
+                            {
+                              xAxis: item.hour + ":00"
+                            },
+                            {
+                              xAxis: (item.hour+1) + ":00"
+                            }
+                          ]
+                        })
+                      ]
+                    },
+              },
+                {
+                    name: 'Expensive',
                     type: 'line',
                     data: [],
                 
                     markArea: {
                         itemStyle: {
-                          color: 'rgba(255, 173, 177, 0.4)'
+                          color: 'rgb(255, 144, 42)'
                         },
                         data: [
-                          ...data.filter((item) => item.price >= avg).map((item) => {
+                          ...data.filter((item) => item.price >= q3).map((item) => {
                             return [
                               {
                                 xAxis: item.hour + ":00"
@@ -191,13 +210,29 @@ const Page: React.FC = () => {
         };
         // @ts-ignore
         setOption(newOption);
-    }, [data, max, min, avg]);
+    }, [data]);
 
 
 
 
 
-    return <ReactECharts option={option}     style={{ height: 400 }}    />;
+    return <>
+      <ReactECharts option={option}     style={{ height: 400, width: '100%', }}    />
+      <div style={{ width: '100%', display: 'flex', gap: '1em', justifyContent: 'center'}}>
+        <div>
+          <h4>Precio mínimo</h4>
+          <p>{min} E/KWh</p>
+        </div>
+        <div>
+          <h4>Precio medio</h4>
+          <p>{avg} E/KWh</p>
+        </div>
+        <div>
+          <h4>Precio máximo</h4>
+          <p>{max} E/KWh</p>
+        </div>
+      </div>
+    </>;
 };
 
 export default Page;

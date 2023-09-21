@@ -6,9 +6,9 @@ function App() {
 
   return (
     <>
-      <div>
+      <div style={{ width: '100%'}}>
         <h1>Precio de la luz por horas</h1>
-          <Chart></Chart>
+        <Chart></Chart>
       </div>
     </>
   )
