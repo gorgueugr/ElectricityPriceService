@@ -6,38 +6,28 @@ class HistoricPrice {
 }
 
 const DEFAULT_OPTION = {
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: {
-      type: 'cross'
-    }
-  },
   xAxis: {
     type: 'category',
-    boundaryGap: true,
-    data: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]
+    boundaryGap: false,
+    axisPointer: {
+      snap: true
+    },
+    axisLabel: {
+      interval: 1,
+      formatter: (value: Date) => value.getHours() + ":00",
+    },
   },
   yAxis: {
     type: 'value',
     axisLabel: {
-      formatter: '{value} €/KWh'
+      formatter: (value: number) => value.toFixed(2) + ' €/KWh',
     },
     axisPointer: {
       snap: true
     }
   },
-  series: [
-    {
-      name: 'Electricity',
-      type: 'line',
-      smooth: true,
-      data: [],
-    },
-
-  ]
+  series: []
 };
-
-
 
 const Page: React.FC = () => {
   const [data, setData] = useState<HistoricPrice[]>([]);
@@ -46,61 +36,71 @@ const Page: React.FC = () => {
   const [min, setMin] = useState(0);
   const [avg, setAvg] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await fetch('/prices', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  const fetchData = async () => {
+    const result = await fetch('/prices', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      result.json().then((data) => {
-        const prices: HistoricPrice[] = [];
-        for (let i = 0; i < data.length; i++) {
-          const price = new HistoricPrice(data[i].year, data[i].month, data[i].day, data[i].hour, data[i].price, data[i].coin);
-          prices.push(price);
-        }
-        setData(prices);
-        setMax(Math.max(...prices.map((item) => item.price)));
-        setMin(Math.min(...prices.map((item) => item.price)));
-        setAvg(prices.reduce((a, b) => a + b.price, 0) / prices.length);
-      });
-
-      // Calculate Avg Price
-    };
-    fetchData();
-  }, []);
+    const prices: HistoricPrice[] = [];
+    result.json().then((data) => {
+      for (let i = 0; i < data.length; i++) {
+        const price = new HistoricPrice(data[i].year, data[i].month, data[i].day, data[i].hour, data[i].price / 100, data[i].coin);
+        prices.push(price);
+      }
+      setData(prices);
+      setMax(Math.max(...prices.map((item) => item.price)));
+      setMin(Math.min(...prices.map((item) => item.price)));
+      setAvg(prices.reduce((a, b) => a + b.price, 0) / prices.length);
+    });
+    return prices;
+  };
 
 
-
-  useEffect(() => {
-
-    // const min = Math.min(...data.map((item) => item.price));
-    // const max = Math.max(...data.map((item) => item.price));
+  const updateOption = () => {
     if (data.length === 0) {
       return;
     }
+    // Calculate the quartiles
     const sorted = [...data].sort((a, b) => a?.price - b?.price);
-    // const sum = data.reduce((a, b) => a + b.price, 0);
     const q1Pos = Math.floor((sorted.length - 1) * 0.25);
     const q3Pos = Math.floor((sorted.length - 1) * 0.75);
-    const q1 = sorted[q1Pos].price / 100;
-    const q3 = sorted[q3Pos].price / 100;
+    const q1 = sorted[q1Pos].price;
+    const q3 = sorted[q3Pos].price;
+    //
 
-    const finalData = data.map((item) => item.price / 100)
+    // const finalData = data.map((item) => item.price)
+    const timeData = data.map((item) => [new Date(item.year, item.month, item.day, item.hour, 0, 0, 0).getTime(), item.price])
 
     const newOption = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross'
+        }
+      },
       xAxis: {
-        type: 'category',
-        boundaryGap: true,
-        // data: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]
-        data: data.map((item) => item.hour + ":00"),
+        type: 'time',
+        boundaryGap: false,
+        splitNumber: 24,
+        axisLabel: {
+          show: true,
+          formatter: (value: Date) => {
+            // Format the timestamp to display only hours
+            const date = new Date(value);
+            const hours = date.getHours();
+            return String(hours).padStart(2, '0') + ':00';
+          }
+        },
+
       },
       yAxis: {
         type: 'value',
         axisLabel: {
-          valueFormatter: (value: any) => (value / 100).toFixed(2) + ' €/KWh',
+          valueFormatter: (value: number) => value.toFixed(2) + ' €/KWh',
+
         },
         axisPointer: {
           snap: false
@@ -127,108 +127,36 @@ const Page: React.FC = () => {
       },
       series: [
         {
-          name: 'Precio €/KWh',
+          name: 'Precio',
           type: 'line',
           smooth: true,
-          data: finalData,
+          data: timeData,
           lineStyle: {
             width: 3,
-            shadowColor: 'rgba(0, 0, 0, 1)',
-            shadowBlur: 0.1
+
           },
           tooltip: {
             trigger: 'axis',
             axisPointer: {
               type: 'cross'
-            }
+            },
+            valueFormatter: (value: number) => (value).toFixed(2) + ' €/KWh',
           },
         },
-        {
-          tooltip: {
-            show: false
-          },
-           type: 'bar',
-          smooth: true,
-          data: finalData,
-          barWidth: '98%',
-
-        },
-        //   {
-        //       name: 'Cheap',
-        //       type: 'line',
-        //       data: [],
-
-        //       markArea: {
-        //           itemStyle: {
-        //             color: 'rgb(177, 220, 181)'
-        //           },
-        //           data: [
-        //             ...data.filter((item) => item.price <= q1).map((item) => {
-        //               return [
-        //                 {
-        //                   xAxis: item.hour + ":00"
-        //                 },
-        //                 {
-        //                   xAxis: (item.hour+1) + ":00"
-        //                 }
-        //               ]
-        //             })
-        //           ]
-        //         },
-        //   },
-        //   {
-        //     name: 'Mid',
-        //     type: 'line',
-        //     data: [],
-
-        //     markArea: {
-        //         itemStyle: {
-        //           color: 'rgb(254, 198, 57)'
-        //         },
-        //         data: [
-        //           ...data.filter((item) => item.price < q3 && item.price > q1).map((item) => {
-        //             return [
-        //               {
-        //                 xAxis: item.hour + ":00"
-        //               },
-        //               {
-        //                 xAxis: (item.hour+1) + ":00"
-        //               }
-        //             ]
-        //           })
-        //         ]
-        //       },
-        // },
-        //   {
-        //       name: 'Expensive',
-        //       type: 'line',
-        //       data: [],
-
-        //       markArea: {
-        //           itemStyle: {
-        //             color: 'rgb(255, 144, 42)'
-        //           },
-        //           data: [
-        //             ...data.filter((item) => item.price >= q3).map((item) => {
-        //               return [
-        //                 {
-        //                   xAxis: item.hour + ":00"
-        //                 },
-        //                 {
-        //                   xAxis: (item.hour+1) + ":00"
-        //                 }
-        //               ]
-        //             })
-        //           ]
-        //         },
-        //   }
 
       ]
     };
     // @ts-ignore
     setOption(newOption);
-  }, [data]);
+  }
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    updateOption()
+  }, [data]);
 
 
 
@@ -236,15 +164,15 @@ const Page: React.FC = () => {
   return <>
     <ReactECharts option={option} style={{ height: 400, width: '100%', }} />
     <div style={{ width: '100%', display: 'flex', gap: '1em', justifyContent: 'center' }}>
-      <div>
+      <div style={{ border: '3px solid rgb(177, 220, 181)', borderRadius: '5px', padding: '1em'}}>
         <h4>Precio mínimo</h4>
         <p>{min.toFixed(2)} €/KWh</p>
       </div>
-      <div>
+      <div style={{ border: '3px solid rgb(254, 198, 57)', borderRadius: '5px', padding: '1em'}}>
         <h4>Precio medio</h4>
         <p>{avg.toFixed(2)} €/KWh</p>
       </div>
-      <div>
+      <div style={{ border: '3px solid rgb(255, 144, 42)', borderRadius: '5px', padding: '1em'}}>
         <h4>Precio máximo</h4>
         <p>{max.toFixed(2)} €/KWh</p>
       </div>
