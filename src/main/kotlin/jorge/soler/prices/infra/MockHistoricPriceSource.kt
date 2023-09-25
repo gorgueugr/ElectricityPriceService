@@ -6,7 +6,7 @@ import jorge.soler.prices.domain.HistoricPrice
 
 class MockHistoricPriceSource: HistoricPriceSource {
 
-    override fun get(year: Int, month: Int, day: Int): List<HistoricPrice> { 
+    override suspend fun get(year: Int, month: Int, day: Int): List<HistoricPrice> { 
 
         val prices = mutableListOf<HistoricPrice>()
         for (i in 0..23) {

@@ -7,7 +7,7 @@ import kotlin.random.Random
 
 class RandomHistoricPriceSource: HistoricPriceSource {
 
-    override fun get(year: Int, month: Int, day: Int): List<HistoricPrice> { 
+    override suspend fun get(year: Int, month: Int, day: Int): List<HistoricPrice> { 
 
         
         val prices = mutableListOf<HistoricPrice>()

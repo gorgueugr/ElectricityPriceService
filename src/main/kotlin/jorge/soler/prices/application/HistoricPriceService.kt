@@ -7,7 +7,7 @@ import jorge.soler.prices.domain.HistoricPriceSource
 
 class HistoricPriceService(private val historicPriceRepository: HistoricPriceRepository, private val historicPriceSource: HistoricPriceSource) {
 
-    fun list(year: Int, month: Int, day: Int): List<HistoricPrice> {
+    suspend fun list(year: Int, month: Int, day: Int): List<HistoricPrice> {
         val prices = historicPriceRepository.get(year,month,day)
 
         if (prices.isEmpty()){
