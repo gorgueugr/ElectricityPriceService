@@ -5,6 +5,7 @@ import jorge.soler.prices.domain.HistoricPrice
 import jorge.soler.prices.infra.ListHistoricPriceRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.*
 
 
 class HistoricPriceServiceTest {
@@ -14,9 +15,9 @@ class HistoricPriceServiceTest {
     private val historicPriceService = HistoricPriceService(listHistoricPriceRepository, sourceMock)
 
     @Test
-    fun list() {
+    fun list() = runBlocking {
 
-        val prices = historicPriceService.list(2023,9,19)
+        val prices = async{ historicPriceService.list(2023,9,19) }.await()
         assertEquals(prices.size,24)
 
     }

@@ -14,6 +14,7 @@ import io.ktor.serialization.kotlinx.json.*
 
 
 import kotlin.io.println
+import java.time.LocalDate
 
 
 //24 hours
@@ -58,6 +59,12 @@ class PrecioDeLaLuzHistoricPriceSource: HistoricPriceSource {
 
     override suspend fun get(year: Int, month: Int, day: Int): List<HistoricPrice> {
         // This is intended to get the data from the API: https://api.preciodelaluz.org/v1/prices/all?zone=PCB
+        val todayDate = LocalDate.now()
+        
+        if (year != todayDate.year || month != todayDate.monthValue || day != todayDate.dayOfMonth){
+            println("PrecioDeLaLuz API only provides data for today")
+            return emptyList()
+        }
 
         try{
 
