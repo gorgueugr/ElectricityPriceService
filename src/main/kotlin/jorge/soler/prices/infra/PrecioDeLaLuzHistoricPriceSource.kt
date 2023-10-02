@@ -10,7 +10,6 @@ import jorge.soler.prices.domain.HistoricPriceSource
 import kotlinx.serialization.Serializable
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-// import io.ktor.serialization.gson.*
 
 
 import kotlin.io.println
@@ -50,12 +49,7 @@ fun itemConverter(item: PrecioDeLaLuzItem): HistoricPrice {
         
 
 
-class PrecioDeLaLuzHistoricPriceSource: HistoricPriceSource {
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()        
-        }
-    }
+class PrecioDeLaLuzHistoricPriceSource(val client: HttpClient ): HistoricPriceSource {
 
     override suspend fun get(year: Int, month: Int, day: Int): List<HistoricPrice> {
         // This is intended to get the data from the API: https://api.preciodelaluz.org/v1/prices/all?zone=PCB
